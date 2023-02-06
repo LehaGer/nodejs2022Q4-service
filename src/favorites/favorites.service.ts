@@ -18,7 +18,7 @@ export class FavoritesService {
   }
 
   createAlbum(id: string) {
-    this.storage.createAlbum(id);
+    return this.storage.createAlbum(id);
   }
 
   deleteAlbum(id: string) {

@@ -14,6 +14,8 @@ import { IncomeParamsFavoritesDto } from './dto/income-params-favorites.dto';
 import { ArtistsService } from '../artists/artists.service';
 import { TracksService } from '../tracks/tracks.service';
 import { AlbumsService } from '../albums/albums.service';
+import { FavoriteDto } from './dto/favorite.dto';
+import { FavoriteEntity } from './entities/favorite.entity';
 
 @Controller('favs')
 export class FavoritesController {
@@ -26,7 +28,8 @@ export class FavoritesController {
 
   @Get()
   findAll() {
-    return this.favoritesService.findAll();
+    const favoriteEntity = this.favoritesService.findAll();
+    return this.convertEntityToDto(favoriteEntity);
   }
 
   @Post(':target/:id')
@@ -37,19 +40,25 @@ export class FavoritesController {
           if (!this.trackService.findOne(incomeParamsDto.id))
             throw new UnprocessableEntityException();
         }
-        return this.favoritesService.createTrack(incomeParamsDto.id);
+        return this.convertEntityToDto(
+          this.favoritesService.createTrack(incomeParamsDto.id),
+        );
       case FavoriteType.album:
         if (incomeParamsDto.id !== null) {
           if (!this.albumService.findOne(incomeParamsDto.id))
             throw new UnprocessableEntityException();
         }
-        return this.favoritesService.createAlbum(incomeParamsDto.id);
+        return this.convertEntityToDto(
+          this.favoritesService.createAlbum(incomeParamsDto.id),
+        );
       case FavoriteType.artist:
         if (incomeParamsDto.id !== null) {
           if (!this.artistService.findOne(incomeParamsDto.id))
             throw new UnprocessableEntityException();
         }
-        return this.favoritesService.createArtist(incomeParamsDto.id);
+        return this.convertEntityToDto(
+          this.favoritesService.createArtist(incomeParamsDto.id),
+        );
       default:
         throw new NotFoundException();
     }
@@ -78,11 +87,29 @@ export class FavoritesController {
           .findAll()
           .artists.find((artistId) => artistId === incomeParamsDto.id);
         if (!artist) throw new NotFoundException();
-        return this.favoritesService.createArtist(incomeParamsDto.id);
+        return this.favoritesService.deleteArtist(incomeParamsDto.id);
       }
       default: {
         throw new NotFoundException();
       }
     }
+  }
+
+  private convertEntityToDto(favoriteEntity: FavoriteEntity) {
+    const favoriteDto: FavoriteDto = {
+      artists: [],
+      albums: [],
+      tracks: [],
+    };
+    favoriteDto.tracks = favoriteEntity.tracks.map((trackId) =>
+      this.trackService.findOne(trackId),
+    );
+    favoriteDto.albums = favoriteEntity.albums.map((albumId) =>
+      this.albumService.findOne(albumId),
+    );
+    favoriteDto.artists = favoriteEntity.artists.map((artistId) =>
+      this.artistService.findOne(artistId),
+    );
+    return favoriteDto;
   }
 }
