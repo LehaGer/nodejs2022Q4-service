@@ -2,7 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
+  HttpCode,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -17,8 +20,11 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @HttpCode(201)
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    const user = { ...this.usersService.create(createUserDto) };
+    delete user.password;
+    return user;
   }
 
   @Get()
@@ -28,16 +34,27 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param() params: UuidDto) {
-    return this.usersService.findOne(params.id);
+    const user = this.usersService.findOne(params.id);
+    if (!user) throw new NotFoundException();
+    return user;
   }
 
   @Put(':id')
   update(@Param() params: UuidDto, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(params.id, updateUserDto);
+    const user = this.usersService.findOne(params.id);
+    if (!user) throw new NotFoundException();
+    if (user.password !== updateUserDto.oldPassword)
+      throw new ForbiddenException();
+    const userDto = { ...this.usersService.update(params.id, updateUserDto) };
+    delete userDto.password;
+    return userDto;
   }
 
   @Delete(':id')
+  @HttpCode(204)
   remove(@Param() params: UuidDto) {
+    const user = this.usersService.findOne(params.id);
+    if (!user) throw new NotFoundException();
     return this.usersService.remove(params.id);
   }
 }

@@ -37,7 +37,7 @@ export class InMemoryUserStorage implements IUserStorage {
     const userEntityIndex = this.users.findIndex((user) => user.id === id);
     this.users[userEntityIndex] = {
       ...this.users[userEntityIndex],
-      ...params,
+      password: params.newPassword,
       version: ++this.users[userEntityIndex].version,
       updatedAt: Date.now(),
     };
