@@ -13,10 +13,18 @@ import { UuidDto } from './dto/uuid.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { ArtistsService } from './artists.service';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { TracksService } from '../tracks/tracks.service';
+import { AlbumsService } from '../albums/albums.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Controller('artist')
 export class ArtistsController {
-  constructor(private readonly artistsService: ArtistsService) {}
+  constructor(
+    private readonly artistsService: ArtistsService,
+    private readonly trackService: TracksService,
+    private readonly albumService: AlbumsService,
+    private readonly favoriteService: FavoritesService,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -48,6 +56,30 @@ export class ArtistsController {
   remove(@Param() params: UuidDto) {
     const artist = this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();
+
+    this.trackService
+      .findAll()
+      .filter((track) => track.artistId === params.id)
+      .forEach((track) =>
+        this.trackService.update(track.id, {
+          artistId: null,
+        }),
+      );
+
+    this.albumService
+      .findAll()
+      .filter((album) => album.artistId === params.id)
+      .forEach((album) =>
+        this.albumService.update(album.id, {
+          artistId: null,
+        }),
+      );
+
+    const favoriteAlbum = this.favoriteService
+      .findAll()
+      .artists.find((artistId) => artistId === params.id);
+    if (favoriteAlbum) this.favoriteService.deleteArtist(params.id);
+
     return this.artistsService.remove(params.id);
   }
 }

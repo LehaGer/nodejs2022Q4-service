@@ -6,14 +6,23 @@ import {
   NotFoundException,
   Param,
   Post,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { FavoriteType } from './types/favorite.type';
 import { IncomeParamsFavoritesDto } from './dto/income-params-favorites.dto';
+import { ArtistsService } from '../artists/artists.service';
+import { TracksService } from '../tracks/tracks.service';
+import { AlbumsService } from '../albums/albums.service';
 
 @Controller('favs')
 export class FavoritesController {
-  constructor(private readonly favoritesService: FavoritesService) {}
+  constructor(
+    private readonly favoritesService: FavoritesService,
+    private readonly trackService: TracksService,
+    private readonly albumService: AlbumsService,
+    private readonly artistService: ArtistsService,
+  ) {}
 
   @Get()
   findAll() {
@@ -21,14 +30,26 @@ export class FavoritesController {
   }
 
   @Post(':target/:id')
-  create(@Param() commonDto: IncomeParamsFavoritesDto) {
-    switch (commonDto.target) {
+  create(@Param() incomeParamsDto: IncomeParamsFavoritesDto) {
+    switch (incomeParamsDto.target) {
       case FavoriteType.track:
-        return this.favoritesService.createTrack(commonDto.id);
+        if (incomeParamsDto.id !== null) {
+          if (!this.trackService.findOne(incomeParamsDto.id))
+            throw new UnprocessableEntityException();
+        }
+        return this.favoritesService.createTrack(incomeParamsDto.id);
       case FavoriteType.album:
-        return this.favoritesService.createAlbum(commonDto.id);
+        if (incomeParamsDto.id !== null) {
+          if (!this.albumService.findOne(incomeParamsDto.id))
+            throw new UnprocessableEntityException();
+        }
+        return this.favoritesService.createAlbum(incomeParamsDto.id);
       case FavoriteType.artist:
-        return this.favoritesService.createArtist(commonDto.id);
+        if (incomeParamsDto.id !== null) {
+          if (!this.artistService.findOne(incomeParamsDto.id))
+            throw new UnprocessableEntityException();
+        }
+        return this.favoritesService.createArtist(incomeParamsDto.id);
       default:
         throw new NotFoundException();
     }
@@ -36,28 +57,28 @@ export class FavoritesController {
 
   @Delete(':target/:id')
   @HttpCode(204)
-  remove(@Param() incomeParamsFavorite: IncomeParamsFavoritesDto) {
-    switch (incomeParamsFavorite.target) {
+  remove(@Param() incomeParamsDto: IncomeParamsFavoritesDto) {
+    switch (incomeParamsDto.target) {
       case FavoriteType.track: {
         const track = this.favoritesService
           .findAll()
-          .tracks.find((trackId) => trackId === incomeParamsFavorite.id);
+          .tracks.find((trackId) => trackId === incomeParamsDto.id);
         if (!track) throw new NotFoundException();
-        return this.favoritesService.deleteTrack(incomeParamsFavorite.id);
+        return this.favoritesService.deleteTrack(incomeParamsDto.id);
       }
       case FavoriteType.album: {
         const album = this.favoritesService
           .findAll()
-          .albums.find((albumId) => albumId === incomeParamsFavorite.id);
+          .albums.find((albumId) => albumId === incomeParamsDto.id);
         if (!album) throw new NotFoundException();
-        return this.favoritesService.deleteAlbum(incomeParamsFavorite.id);
+        return this.favoritesService.deleteAlbum(incomeParamsDto.id);
       }
       case FavoriteType.artist: {
         const artist = this.favoritesService
           .findAll()
-          .artists.find((artistId) => artistId === incomeParamsFavorite.id);
+          .artists.find((artistId) => artistId === incomeParamsDto.id);
         if (!artist) throw new NotFoundException();
-        return this.favoritesService.createArtist(incomeParamsFavorite.id);
+        return this.favoritesService.createArtist(incomeParamsDto.id);
       }
       default: {
         throw new NotFoundException();
