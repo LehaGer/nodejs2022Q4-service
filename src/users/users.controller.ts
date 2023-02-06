@@ -29,14 +29,20 @@ export class UsersController {
 
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAll().map((userEntity) => {
+      const userDto = { ...userEntity };
+      delete userDto.password;
+      return userDto;
+    });
   }
 
   @Get(':id')
   findOne(@Param() params: UuidDto) {
     const user = this.usersService.findOne(params.id);
     if (!user) throw new NotFoundException();
-    return user;
+    const userDto = { ...user };
+    delete userDto.password;
+    return userDto;
   }
 
   @Put(':id')
