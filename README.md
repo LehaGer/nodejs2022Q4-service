@@ -13,7 +13,7 @@ git clone https://github.com/LehaGer/nodejs2022Q4-service.git
 ```
 
 ```
-npm checkout develop
+git checkout develop
 ```
 ```
 npm install
