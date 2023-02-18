@@ -1,7 +1,8 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { TrackEntity } from '../entities/track.entity';
 
-export class CreateTrackDto {
+export class CreateTrackDto implements Omit<TrackEntity, 'id'> {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({

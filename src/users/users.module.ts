@@ -1,16 +1,18 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { InMemoryUserStorage } from './store/users.storage';
+import { InMemoryStorage } from '../database/stores/in-memory.storage';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   controllers: [UsersController],
   providers: [
     UsersService,
     {
-      provide: 'IUserStorage',
-      useClass: InMemoryUserStorage,
+      provide: 'IDatabase',
+      useClass: InMemoryStorage,
     },
   ],
+  imports: [forwardRef(() => DatabaseModule)],
 })
 export class UsersModule {}

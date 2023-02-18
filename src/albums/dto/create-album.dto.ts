@@ -1,7 +1,8 @@
 import { IsInt, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { AlbumEntity } from '../entities/album.entity';
 
-export class CreateAlbumDto {
+export class CreateAlbumDto implements Omit<AlbumEntity, 'id'> {
   @IsString()
   @ApiProperty({
     description: "album's name",
