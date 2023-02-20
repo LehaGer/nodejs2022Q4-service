@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  rest-api:
+    container_name: rest-api
+    image: rest-api
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    environment:
+      - PORT=${PORT}
+    networks:
+      - postgres
+  db:
+    container_name: db
+    image: postgres:alpine3.17
+    build: ./DB/
+    ports:
+      - ${DB_HOST_PORT}:${DB_PORT}
+    volumes:
+      - ./DB/entrypoint:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+      - pglogs:/var/lib/postgresql
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_PORT=${DB_PORT}
+      - PORT=${DB_HOST_PORT}
+      - POSTGRES_HOST='db'
+      - PGDATA=${PGDATA}
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - postgres
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - ./DB/pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    restart: always
+    networks:
+      - postgres
+volumes:
+  pgdata:
+  pglogs:
+networks:
+  postgres:
+    name: postgres
+    driver: bridge
