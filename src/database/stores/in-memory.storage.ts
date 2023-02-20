@@ -23,25 +23,25 @@ export class InMemoryStorage implements IDatabase {
       artists: [],
     };
 
-  findAll<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
+  async findAll<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
-  ): K[T]['entity'][] {
+  ): Promise<K[T]['entity'][]> {
     return this[`${resourceType}s`];
   }
 
-  findById<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
-    resourceType: T,
-    id: string,
-  ): K[T]['entity'] | undefined {
+  async findById<
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(resourceType: T, id: string): Promise<K[T]['entity'] | undefined> {
     return this[`${resourceType as string}s`].find(
       (resourceEntity) => resourceEntity.id === id,
     );
   }
 
-  create<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
+  async create<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
     params: K[T]['createDto'],
-  ): K[T]['entity'] {
+  ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
       const newUser: K[Extract<T, 'user'>]['entity'] = {
         id: uuid(),
@@ -64,11 +64,11 @@ export class InMemoryStorage implements IDatabase {
     }
   }
 
-  update<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
+  async update<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
     id: string,
     params: K[T]['updateDto'],
-  ): K[T]['entity'] {
+  ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
       const userEntityIndex = this[`${resourceType as string}s`].findIndex(
         (user) => user.id === id,
@@ -93,44 +93,47 @@ export class InMemoryStorage implements IDatabase {
     }
   }
 
-  delete<T extends ResourceTypeName>(resourceType: T, id: string): void {
+  async delete<T extends ResourceTypeName>(
+    resourceType: T,
+    id: string,
+  ): Promise<void> {
     this[`${resourceType as string}s`] = this[
       `${resourceType as string}s`
     ].filter((resourceInstance) => resourceInstance.id !== id);
   }
 
-  getAllFavorites(): FavoriteEntity {
+  async getAllFavorites(): Promise<FavoriteEntity> {
     return this.favorites;
   }
 
-  addTrackToFavorites(id: string): FavoriteEntity {
+  async addTrackToFavorites(id: string): Promise<FavoriteEntity> {
     this.favorites.tracks.push(id);
     return this.favorites;
   }
 
-  removeTrackFromFavorites(id: string): void {
+  async removeTrackFromFavorites(id: string): Promise<void> {
     this.favorites.tracks = this.favorites.tracks.filter(
       (trackId) => trackId !== id,
     );
   }
 
-  addAlbumToFavorites(id: string): FavoriteEntity {
+  async addAlbumToFavorites(id: string): Promise<FavoriteEntity> {
     this.favorites.albums.push(id);
     return this.favorites;
   }
 
-  removeAlbumFromFavorites(id: string): void {
+  async removeAlbumFromFavorites(id: string): Promise<void> {
     this.favorites.albums = this.favorites.albums.filter(
       (albumId) => albumId !== id,
     );
   }
 
-  addArtistToFavorites(id: string): FavoriteEntity {
+  async addArtistToFavorites(id: string): Promise<FavoriteEntity> {
     this.favorites.artists.push(id);
     return this.favorites;
   }
 
-  removeArtistFromFavorites(id: string): void {
+  async removeArtistFromFavorites(id: string): Promise<void> {
     this.favorites.artists = this.favorites.artists.filter(
       (artistId) => artistId !== id,
     );

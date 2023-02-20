@@ -23,15 +23,15 @@ export class UsersController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createUserDto: CreateUserDto) {
-    const user = { ...this.usersService.create(createUserDto) };
+  async create(@Body() createUserDto: CreateUserDto) {
+    const user = { ...(await this.usersService.create(createUserDto)) };
     delete user.password;
     return user;
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll().map((userEntity) => {
+  async findAll() {
+    return (await this.usersService.findAll()).map((userEntity) => {
       const userDto = { ...userEntity };
       delete userDto.password;
       return userDto;
@@ -39,8 +39,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param() params: UuidDto) {
-    const user = this.usersService.findOne(params.id);
+  async findOne(@Param() params: UuidDto) {
+    const user = await this.usersService.findOne(params.id);
     if (!user) throw new NotFoundException();
     const userDto = { ...user };
     delete userDto.password;
@@ -48,20 +48,22 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(@Param() params: UuidDto, @Body() updateUserDto: UpdateUserDto) {
-    const user = this.usersService.findOne(params.id);
+  async update(@Param() params: UuidDto, @Body() updateUserDto: UpdateUserDto) {
+    const user = await this.usersService.findOne(params.id);
     if (!user) throw new NotFoundException();
     if (user.password !== updateUserDto.oldPassword)
       throw new ForbiddenException();
-    const userDto = { ...this.usersService.update(params.id, updateUserDto) };
+    const userDto = {
+      ...(await this.usersService.update(params.id, updateUserDto)),
+    };
     delete userDto.password;
     return userDto;
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param() params: UuidDto) {
-    const user = this.usersService.findOne(params.id);
+  async remove(@Param() params: UuidDto) {
+    const user = await this.usersService.findOne(params.id);
     if (!user) throw new NotFoundException();
     return this.usersService.remove(params.id);
   }

@@ -31,52 +31,58 @@ export class AlbumsController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createAlbumDto: CreateAlbumDto) {
+  async create(@Body() createAlbumDto: CreateAlbumDto) {
     if (createAlbumDto.artistId !== null) {
-      if (!this.artistService.findOne(createAlbumDto.artistId))
+      if (!(await this.artistService.findOne(createAlbumDto.artistId)))
         throw new UnprocessableEntityException();
     }
     return this.albumsService.create(createAlbumDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.albumsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param() params: UuidDto) {
-    const album = this.albumsService.findOne(params.id);
+  async findOne(@Param() params: UuidDto) {
+    const album = await this.albumsService.findOne(params.id);
     if (!album) throw new NotFoundException();
     return album;
   }
 
   @Put(':id')
-  update(@Param() params: UuidDto, @Body() updateAlbumDto: UpdateAlbumDto) {
-    const album = this.albumsService.findOne(params.id);
+  async update(
+    @Param() params: UuidDto,
+    @Body() updateAlbumDto: UpdateAlbumDto,
+  ) {
+    const album = await this.albumsService.findOne(params.id);
     if (!album) throw new NotFoundException();
     return this.albumsService.update(params.id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param() params: UuidDto) {
-    const album = this.albumsService.findOne(params.id);
+  async remove(@Param() params: UuidDto) {
+    const album = await this.albumsService.findOne(params.id);
     if (!album) throw new NotFoundException();
 
-    const tracks = this.trackService
-      .findAll()
-      .filter((track) => track.albumId === params.id);
-    tracks.forEach((track) =>
-      this.trackService.update(track.id, {
-        albumId: null,
-      }),
+    const tracks = (await this.trackService.findAll()).filter(
+      (track) => track.albumId === params.id,
+    );
+    await Promise.all(
+      tracks.map(
+        async (track) =>
+          await this.trackService.update(track.id, {
+            albumId: null,
+          }),
+      ),
     );
 
-    const favoriteAlbum = this.favoriteService
-      .findAll()
-      .albums.find((albumId) => albumId === params.id);
-    if (favoriteAlbum) this.favoriteService.deleteAlbum(params.id);
+    const favoriteAlbum = (await this.favoriteService.findAll()).albums.find(
+      (albumId) => albumId === params.id,
+    );
+    if (favoriteAlbum) await this.favoriteService.deleteAlbum(params.id);
 
     return this.albumsService.remove(params.id);
   }

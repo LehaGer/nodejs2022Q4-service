@@ -30,57 +30,68 @@ export class ArtistsController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createArtistDto: CreateArtistDto) {
+  async create(@Body() createArtistDto: CreateArtistDto) {
     return this.artistsService.create(createArtistDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.artistsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param() params: UuidDto) {
-    const artist = this.artistsService.findOne(params.id);
+  async findOne(@Param() params: UuidDto) {
+    const artist = await this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();
     return artist;
   }
 
   @Put(':id')
-  update(@Param() params: UuidDto, @Body() updateArtistDto: UpdateArtistDto) {
-    const artist = this.artistsService.findOne(params.id);
+  async update(
+    @Param() params: UuidDto,
+    @Body() updateArtistDto: UpdateArtistDto,
+  ) {
+    const artist = await this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();
     return this.artistsService.update(params.id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param() params: UuidDto) {
-    const artist = this.artistsService.findOne(params.id);
+  async remove(@Param() params: UuidDto) {
+    const artist = await this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();
 
-    this.trackService
-      .findAll()
-      .filter((track) => track.artistId === params.id)
-      .forEach((track) =>
-        this.trackService.update(track.id, {
-          artistId: null,
-        }),
-      );
+    await Promise.all(
+      (
+        await this.trackService.findAll()
+      )
+        .filter((track) => track.artistId === params.id)
+        .map(
+          async (track) =>
+            await this.trackService.update(track.id, {
+              artistId: null,
+            }),
+        ),
+    );
 
-    this.albumService
-      .findAll()
-      .filter((album) => album.artistId === params.id)
-      .forEach((album) =>
-        this.albumService.update(album.id, {
-          artistId: null,
-        }),
-      );
+    await Promise.all(
+      (
+        await this.albumService.findAll()
+      )
+        .filter((album) => album.artistId === params.id)
+        .map(
+          async (album) =>
+            await this.albumService.update(album.id, {
+              artistId: null,
+            }),
+        ),
+    );
 
-    const favoriteAlbum = this.favoriteService
-      .findAll()
-      .artists.find((artistId) => artistId === params.id);
-    if (favoriteAlbum) this.favoriteService.deleteArtist(params.id);
+    const favoriteAlbum = (await this.favoriteService.findAll()).artists.find(
+      (artistId) => artistId === params.id,
+    );
+    if (favoriteAlbum) await this.favoriteService.deleteArtist(params.id);
 
     return this.artistsService.remove(params.id);
   }

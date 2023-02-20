@@ -9,21 +9,21 @@ export class DatabaseService {
 
   findAll<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
-  ): K[T]['entity'][] {
+  ): Promise<K[T]['entity'][]> {
     return this.storage.findAll<T, K>(resourceType);
   }
 
   findById<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
     id: string,
-  ): K[T]['entity'] | undefined {
+  ): Promise<K[T]['entity'] | undefined> {
     return this.storage.findById<T, K>(resourceType, id);
   }
 
-  create(
-    resourceType: ResourceTypeName,
-    params: IResourceTypeCoincidence[ResourceTypeName]['createDto'],
-  ): IResourceTypeCoincidence[ResourceTypeName]['entity'] {
+  create<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
+    resourceType: T,
+    params: K[T]['createDto'],
+  ): Promise<K[T]['entity']> {
     return this.storage.create<ResourceTypeName, IResourceTypeCoincidence>(
       resourceType,
       params,
@@ -34,11 +34,14 @@ export class DatabaseService {
     resourceType: T,
     id: string,
     params: K[T]['updateDto'],
-  ): K[T]['entity'] {
+  ): Promise<K[T]['entity']> {
     return this.storage.update<T, K>(resourceType, id, params);
   }
 
-  delete<T extends ResourceTypeName>(resourceType: T, id: string): void {
+  delete<T extends ResourceTypeName>(
+    resourceType: T,
+    id: string,
+  ): Promise<void> {
     return this.storage.delete<T>(resourceType, id);
   }
 }
