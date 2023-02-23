@@ -3,7 +3,6 @@ version: '3.8'
 services:
   rest-api:
     container_name: rest-api
-    image: node:18-alpine
     build: .
     ports:
       - ${PORT}:${PORT}
@@ -11,11 +10,13 @@ services:
       - db
     environment:
       - PORT=${PORT}
+    volumes:
+      - .:/usr/app/src
+    restart: always
     networks:
       - postgres
   db:
     container_name: db
-    image: postgres:alpine3.17
     build: ./DB/
     ports:
       - ${DB_HOST_PORT}:${DB_PORT}
