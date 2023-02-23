@@ -89,6 +89,8 @@ After that your generated migration file will be applied automatically. Or you c
 npm run migration:run
 ```
 
+###### if you try to interact with migrations from container side, for successful connection to DB during migrations build, you should update defaultProps.POSTGRES_DB_NETWORK_NAME value from [data-source.ts](src%2Fdatabase%2Fstores%2Ftypeorm.storage%2Fdata-source.ts) file to 'db'
+
 ### Auto-fix and format
 
 ```
