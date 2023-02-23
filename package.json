@@ -22,11 +22,11 @@
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "typeorm": "npm run build && cd DB/migrations && npx typeorm",
+    "typeorm": "npm run build && npx typeorm",
     "migration:create": "npm run typeorm -- migration:create",
-    "migration:generate": "npm run typeorm -- migration:generate -d ../../dist/src/database/stores/typeorm.storage/data-source.js",
-    "migration:run": "npm run typeorm -- migration:run -d ../../dist/src/database/stores/typeorm.storage/data-source.js",
-    "migration:revert": "npm run typeorm -- migration:revert -d ../../dist/src/database/stores/typeorm.storage/data-source.js"
+    "migration:generate": "npm run typeorm -- migration:generate -d dist/src/database/stores/typeorm.storage/data-source.js",
+    "migration:run": "npm run typeorm -- migration:run -d dist/src/database/stores/typeorm.storage/data-source.js",
+    "migration:revert": "npm run typeorm -- migration:revert -d dist/src/database/stores/typeorm.storage/data-source.js"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
