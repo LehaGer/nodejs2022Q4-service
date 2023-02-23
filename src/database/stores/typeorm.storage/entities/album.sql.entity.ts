@@ -15,10 +15,17 @@ export class AlbumSqlEntity {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'int4' })
   year: number;
 
-  @ManyToOne(() => ArtistSqlEntity)
+  @ManyToOne(() => ArtistSqlEntity, {
+    onDelete: 'SET NULL',
+    nullable: true,
+    orphanedRowAction: 'nullify',
+  })
   @JoinColumn({ name: 'artistId' })
-  artistId: string | null; // refers to Artist
+  artist: ArtistSqlEntity | null; // refers to Artist
+
+  @Column({ nullable: true })
+  artistId: string | null;
 }

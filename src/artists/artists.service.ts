@@ -1,29 +1,29 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { IDatabase } from '../database/interfaces/database.interface';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class ArtistsService {
-  constructor(@Inject('IDatabase') private storage: IDatabase) {}
+  constructor(private storage: DatabaseService) {}
 
-  create(createArtistDto: CreateArtistDto) {
+  async create(createArtistDto: CreateArtistDto) {
     return this.storage.create('artist', createArtistDto);
   }
 
-  findAll() {
+  async findAll() {
     return this.storage.findAll('artist');
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.storage.findById('artist', id);
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
     return this.storage.update('artist', id, updateArtistDto);
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     return this.storage.delete('artist', id);
   }
 }

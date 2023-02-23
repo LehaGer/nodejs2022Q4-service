@@ -1,11 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  VersionColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, VersionColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class UserSqlEntity {
@@ -21,9 +14,9 @@ export class UserSqlEntity {
   @VersionColumn()
   version: number; // integer number, increments on update
 
-  @CreateDateColumn()
+  @Column({ type: 'int8' })
   createdAt: number; // timestamp of creation
 
-  @UpdateDateColumn()
+  @Column({ type: 'int8' })
   updatedAt: number; // timestamp of last update
 }

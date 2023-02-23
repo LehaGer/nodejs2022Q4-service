@@ -56,6 +56,13 @@ export class TypeOrmStorage implements IDatabase {
   async findAll<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
   ): Promise<K[T]['entity'][]> {
+    if (resourceType === 'album') {
+      const albums = await this.albumRepository.find();
+      return albums.map((album) => ({
+        ...album,
+        year: album.year,
+      }));
+    }
     return this.ResourceNameEntityCoincidence[resourceType].find();
   }
 
@@ -63,6 +70,15 @@ export class TypeOrmStorage implements IDatabase {
     T extends ResourceTypeName,
     K extends IResourceTypeCoincidence,
   >(resourceType: T, id: string): Promise<K[T]['entity'] | undefined> {
+    if (resourceType === 'album') {
+      const album = await this.albumRepository.findOneBy({ id });
+      return album
+        ? {
+            ...album,
+            year: Number(album?.year),
+          }
+        : album;
+    }
     return this.ResourceNameEntityCoincidence[resourceType].findOneBy({ id });
   }
 
@@ -72,10 +88,17 @@ export class TypeOrmStorage implements IDatabase {
   ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
       const newUser: K[Extract<T, 'user'>]['entity'] =
-        this.userRepository.create(
-          params as K[Extract<T, 'user'>]['createDto'],
-        );
-      return this.userRepository.save(newUser);
+        this.userRepository.create({
+          ...(params as K[Extract<T, 'user'>]['createDto']),
+          createdAt: Number(Date.now()),
+          updatedAt: Number(Date.now()),
+        });
+      const savedUser = await this.userRepository.save(newUser);
+      return {
+        ...savedUser,
+        createdAt: Number(savedUser.createdAt),
+        updatedAt: Number(savedUser.updatedAt),
+      };
     } else {
       const newResource: K[Exclude<T, 'user'>]['entity'] =
         this.ResourceNameEntityCoincidence[resourceType].create(
@@ -86,7 +109,13 @@ export class TypeOrmStorage implements IDatabase {
         return this.trackRepository.save(newResource);
       }
       if (resourceType === 'album') {
-        return this.albumRepository.save(newResource);
+        const album = await this.albumRepository.save(newResource);
+        return album
+          ? {
+              ...album,
+              year: Number(album.year),
+            }
+          : album;
       }
       if (resourceType === 'artist') {
         return this.artistRepository.save(newResource);
@@ -101,11 +130,30 @@ export class TypeOrmStorage implements IDatabase {
   ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
       const user = await this.userRepository.findOneBy({ id });
-      return this.userRepository.save({
+      const newUser = await this.userRepository.save({
         ...user,
         password: (params as UpdateUserDto).newPassword,
+        updatedAt: Date.now(),
       });
+      return {
+        ...newUser,
+        createdAt: Number(newUser.createdAt),
+        updatedAt: Number(newUser.updatedAt),
+      };
     } else {
+      if (resourceType === 'album') {
+        const album = await this.albumRepository.findOneBy({ id });
+        const albumSaved = await this.albumRepository.save({
+          ...album,
+          ...params,
+        });
+        return albumSaved
+          ? {
+              ...albumSaved,
+              year: Number(albumSaved.year),
+            }
+          : albumSaved;
+      }
       const resourceEntity = await this.ResourceNameEntityCoincidence[
         resourceType
       ].findOneBy({ id });
@@ -139,9 +187,9 @@ export class TypeOrmStorage implements IDatabase {
     const favouriteAlbums = await this.favouriteAlbumRepository.find();
     const favouriteArtists = await this.favouriteArtistRepository.find();
     return {
-      artists: favouriteTracks.map((track) => track.track.id),
-      albums: favouriteAlbums.map((album) => album.album.id),
-      tracks: favouriteArtists.map((artist) => artist.artist.id),
+      tracks: favouriteTracks.map((track) => track.trackId),
+      albums: favouriteAlbums.map((album) => album.albumId),
+      artists: favouriteArtists.map((artist) => artist.artistId),
     };
   }
 
@@ -177,6 +225,7 @@ export class TypeOrmStorage implements IDatabase {
       album: albumEntity,
     });
     await this.favouriteAlbumRepository.remove(favouriteAlbum);
+    return;
   }
 
   async addArtistToFavorites(id: string): Promise<FavoriteEntity> {
@@ -194,5 +243,6 @@ export class TypeOrmStorage implements IDatabase {
       artist: artistEntity,
     });
     await this.favouriteArtistRepository.remove(favouriteArtist);
+    return;
   }
 }

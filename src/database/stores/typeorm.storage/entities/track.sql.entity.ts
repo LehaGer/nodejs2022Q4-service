@@ -16,13 +16,27 @@ export class TrackSqlEntity {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @ManyToOne(() => ArtistSqlEntity)
-  @JoinColumn({ name: 'artistId' })
-  artistId: string | null; // refers to Artist
+  @ManyToOne(() => ArtistSqlEntity, {
+    onDelete: 'SET NULL',
+    nullable: true,
+    orphanedRowAction: 'nullify',
+  })
+  @JoinColumn({ name: 'artistId', foreignKeyConstraintName: 'artistId' })
+  artist: ArtistSqlEntity | null; // refers to Artist
 
-  @ManyToOne(() => AlbumSqlEntity)
+  @Column({ nullable: true })
+  artistId: string | null;
+
+  @ManyToOne(() => AlbumSqlEntity, {
+    onDelete: 'SET NULL',
+    nullable: true,
+    orphanedRowAction: 'nullify',
+  })
   @JoinColumn({ name: 'albumId' })
-  albumId: string | null; // refers to Album
+  album: AlbumSqlEntity | null; // refers to Album
+
+  @Column({ nullable: true })
+  albumId: string | null;
 
   @Column({ type: 'float8' })
   duration: number; // integer number

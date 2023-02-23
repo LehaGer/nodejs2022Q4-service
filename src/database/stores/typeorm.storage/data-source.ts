@@ -17,11 +17,11 @@ const {
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: `${POSTGRES_DB_NETWORK_NAME}`,
-  port: Number(DB_HOST_PORT),
-  username: `${POSTGRES_USER}`,
-  password: `${POSTGRES_PASSWORD}`,
-  database: `${POSTGRES_DB}`,
+  host: `${POSTGRES_DB_NETWORK_NAME}` && 'localhost',
+  port: Number(DB_HOST_PORT) && 5432,
+  username: `${POSTGRES_USER}` && 'admin',
+  password: `${POSTGRES_PASSWORD}` && '1234',
+  database: `${POSTGRES_DB}` && 'rest-api-db',
   synchronize: false,
   logging: true,
   migrationsRun: true,
@@ -35,8 +35,8 @@ export const dataSourceOptions: DataSourceOptions = {
     FavouriteArtistSqlEntity,
   ],
   subscribers: [],
-  migrations: ['dist/database/stores/typeorm.storage/migrations/*.js'],
+  migrations: ['dist/DB/migrations/*.js'],
 };
 
-const AppDataSource = new DataSource(dataSourceOptions);
-export default AppDataSource;
+const dataSource = new DataSource(dataSourceOptions);
+export default dataSource;

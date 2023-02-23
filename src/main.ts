@@ -12,7 +12,6 @@ import { ArtistsModule } from './artists/artists.module';
 import { AlbumsModule } from './albums/albums.module';
 import { TracksModule } from './tracks/tracks.module';
 import { FavoritesModule } from './favorites/favorites.module';
-import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

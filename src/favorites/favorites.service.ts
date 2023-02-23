@@ -1,35 +1,35 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { IDatabase } from '../database/interfaces/database.interface';
+import { Injectable } from '@nestjs/common';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class FavoritesService {
-  constructor(@Inject('IDatabase') private storage: IDatabase) {}
+  constructor(private storage: DatabaseService) {}
 
-  findAll() {
+  async findAll() {
     return this.storage.getAllFavorites();
   }
 
-  createTrack(id: string) {
+  async createTrack(id: string) {
     return this.storage.addTrackToFavorites(id);
   }
 
-  deleteTrack(id: string) {
-    this.storage.removeTrackFromFavorites(id);
+  async deleteTrack(id: string) {
+    await this.storage.removeTrackFromFavorites(id);
   }
 
-  createAlbum(id: string) {
+  async createAlbum(id: string) {
     return this.storage.addAlbumToFavorites(id);
   }
 
-  deleteAlbum(id: string) {
-    this.storage.removeAlbumFromFavorites(id);
+  async deleteAlbum(id: string) {
+    await this.storage.removeAlbumFromFavorites(id);
   }
 
-  createArtist(id: string) {
+  async createArtist(id: string) {
     return this.storage.addArtistToFavorites(id);
   }
 
-  deleteArtist(id: string) {
-    this.storage.removeArtistFromFavorites(id);
+  async deleteArtist(id: string) {
+    await this.storage.removeArtistFromFavorites(id);
   }
 }

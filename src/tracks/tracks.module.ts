@@ -5,17 +5,10 @@ import { ArtistsModule } from '../artists/artists.module';
 import { AlbumsModule } from '../albums/albums.module';
 import { FavoritesModule } from '../favorites/favorites.module';
 import { DatabaseModule } from '../database/database.module';
-import { InMemoryStorage } from '../database/stores/in-memory.storage';
 
 @Module({
   controllers: [TracksController],
-  providers: [
-    TracksService,
-    {
-      provide: 'IDatabase',
-      useClass: InMemoryStorage,
-    },
-  ],
+  providers: [TracksService],
   exports: [TracksService],
   imports: [
     forwardRef(() => ArtistsModule),
