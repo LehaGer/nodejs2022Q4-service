@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18.14.2-alpine3.17
 
 WORKDIR /usr/app/src
 
@@ -6,8 +6,8 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+# COPY . .
 
 EXPOSE ${PORT}
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start:dev" ]
