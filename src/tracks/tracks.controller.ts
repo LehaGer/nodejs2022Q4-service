@@ -31,46 +31,49 @@ export class TracksController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createTrackDto: CreateTrackDto) {
+  async create(@Body() createTrackDto: CreateTrackDto) {
     if (createTrackDto.artistId !== null) {
-      if (!this.artistService.findOne(createTrackDto.artistId))
+      if (!(await this.artistService.findOne(createTrackDto.artistId)))
         throw new UnprocessableEntityException();
     }
     if (createTrackDto.albumId !== null) {
-      if (!this.albumService.findOne(createTrackDto.albumId))
+      if (!(await this.albumService.findOne(createTrackDto.albumId)))
         throw new UnprocessableEntityException();
     }
     return this.tracksService.create(createTrackDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.tracksService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param() params: UuidDto) {
-    const track = this.tracksService.findOne(params.id);
+  async findOne(@Param() params: UuidDto) {
+    const track = await this.tracksService.findOne(params.id);
     if (!track) throw new NotFoundException();
     return track;
   }
 
   @Put(':id')
-  update(@Param() params: UuidDto, @Body() updateTrackDto: UpdateTrackDto) {
-    const track = this.tracksService.findOne(params.id);
+  async update(
+    @Param() params: UuidDto,
+    @Body() updateTrackDto: UpdateTrackDto,
+  ) {
+    const track = await this.tracksService.findOne(params.id);
     if (!track) throw new NotFoundException();
     return this.tracksService.update(params.id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param() params: UuidDto) {
-    const track = this.tracksService.findOne(params.id);
+  async remove(@Param() params: UuidDto) {
+    const track = await this.tracksService.findOne(params.id);
     if (!track) throw new NotFoundException();
-    const favoriteTrack = this.favoriteService
-      .findAll()
-      .tracks.find((trackId) => trackId === params.id);
-    if (favoriteTrack) this.favoriteService.deleteTrack(params.id);
+    const favoriteTrack = (await this.favoriteService.findAll()).tracks.find(
+      (trackId) => trackId === params.id,
+    );
+    if (favoriteTrack) await this.favoriteService.deleteTrack(params.id);
     return this.tracksService.remove(params.id);
   }
 }
