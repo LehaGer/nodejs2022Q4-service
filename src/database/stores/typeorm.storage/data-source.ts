@@ -7,6 +7,14 @@ import { AlbumSqlEntity } from './entities/album.sql.entity';
 import { ArtistSqlEntity } from './entities/artist.sql.entity';
 import { TrackSqlEntity } from './entities/track.sql.entity';
 
+const defaultProps = {
+  DB_HOST_PORT: 5432,
+  POSTGRES_DB: 'rest-api-db',
+  POSTGRES_USER: 'admin',
+  POSTGRES_PASSWORD: '1234',
+  POSTGRES_DB_NETWORK_NAME: 'localhost',
+};
+
 const {
   DB_HOST_PORT,
   POSTGRES_DB,
@@ -17,11 +25,11 @@ const {
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: `${POSTGRES_DB_NETWORK_NAME}` && 'localhost',
-  port: Number(DB_HOST_PORT) && 5432,
-  username: `${POSTGRES_USER}` && 'admin',
-  password: `${POSTGRES_PASSWORD}` && '1234',
-  database: `${POSTGRES_DB}` && 'rest-api-db',
+  host: `${POSTGRES_DB_NETWORK_NAME ?? defaultProps.POSTGRES_DB_NETWORK_NAME}`,
+  port: Number(DB_HOST_PORT ?? defaultProps.DB_HOST_PORT),
+  username: `${POSTGRES_USER ?? defaultProps.POSTGRES_USER}`,
+  password: `${POSTGRES_PASSWORD ?? defaultProps.POSTGRES_PASSWORD}`,
+  database: `${POSTGRES_DB ?? defaultProps.POSTGRES_DB}`,
   synchronize: false,
   logging: true,
   migrationsRun: true,

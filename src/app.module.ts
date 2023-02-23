@@ -13,7 +13,7 @@ import { dataSourceOptions } from './database/stores/typeorm.storage/data-source
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot(dataSourceOptions),
     UsersModule,
     ArtistsModule,
