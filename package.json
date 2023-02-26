@@ -22,6 +22,8 @@
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
+    "docker:scan:api": "docker scan lehager/reast-api",
+    "docker:scan:db": "docker scan lehager/db",
     "typeorm": "npm run build && npx typeorm",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:generate": "npm run typeorm -- migration:generate -d dist/src/database/stores/typeorm.storage/data-source.js",

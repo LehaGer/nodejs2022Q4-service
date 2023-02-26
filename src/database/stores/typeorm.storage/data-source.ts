@@ -6,6 +6,7 @@ import { UserSqlEntity } from './entities/user.sql.entity';
 import { AlbumSqlEntity } from './entities/album.sql.entity';
 import { ArtistSqlEntity } from './entities/artist.sql.entity';
 import { TrackSqlEntity } from './entities/track.sql.entity';
+import { ConfigService } from '@nestjs/config';
 
 const defaultProps = {
   DB_HOST_PORT: 5432,
@@ -15,13 +16,12 @@ const defaultProps = {
   POSTGRES_DB_NETWORK_NAME: 'localhost',
 };
 
-const {
-  DB_HOST_PORT,
-  POSTGRES_DB,
-  POSTGRES_USER,
-  POSTGRES_PASSWORD,
-  POSTGRES_DB_NETWORK_NAME,
-} = process.env;
+const configService = new ConfigService();
+const DB_HOST_PORT = configService.get('DB_HOST_PORT');
+const POSTGRES_DB = configService.get('POSTGRES_DB');
+const POSTGRES_USER = configService.get('POSTGRES_USER');
+const POSTGRES_PASSWORD = configService.get('POSTGRES_PASSWORD');
+const POSTGRES_DB_NETWORK_NAME = configService.get('POSTGRES_DB_NETWORK_NAME');
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
