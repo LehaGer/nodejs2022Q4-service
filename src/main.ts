@@ -2,7 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
+import { UsersModule } from './users/users.module';
+import { ArtistsModule } from './artists/artists.module';
+import { AlbumsModule } from './albums/albums.module';
+import { TracksModule } from './tracks/tracks.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,9 +20,19 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('REST Service')
+    .setDescription('The REST Service API description')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const options: SwaggerDocumentOptions = {
+    include: [
+      UsersModule,
+      ArtistsModule,
+      AlbumsModule,
+      TracksModule,
+      FavoritesModule,
+    ],
+  };
+  const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('doc', app, document);
 
   const configService = app.get(ConfigService);

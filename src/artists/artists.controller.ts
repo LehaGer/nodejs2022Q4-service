@@ -16,7 +16,9 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { TracksService } from '../tracks/tracks.service';
 import { AlbumsService } from '../albums/albums.service';
 import { FavoritesService } from '../favorites/favorites.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('artist')
 @Controller('artist')
 export class ArtistsController {
   constructor(

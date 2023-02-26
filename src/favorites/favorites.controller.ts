@@ -16,7 +16,9 @@ import { TracksService } from '../tracks/tracks.service';
 import { AlbumsService } from '../albums/albums.service';
 import { FavoriteDto } from './dto/favorite.dto';
 import { FavoriteEntity } from './entities/favorite.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('favorites')
 @Controller('favs')
 export class FavoritesController {
   constructor(
@@ -33,7 +35,7 @@ export class FavoritesController {
   }
 
   @Post(':target/:id')
-  create(@Param() incomeParamsDto: IncomeParamsFavoritesDto) {
+  create(@Param() incomeParamsDto: IncomeParamsFavoritesDto): FavoriteDto {
     switch (incomeParamsDto.target) {
       case FavoriteType.track:
         if (incomeParamsDto.id !== null) {

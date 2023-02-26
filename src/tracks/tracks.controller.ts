@@ -17,7 +17,9 @@ import { UuidDto } from './dto/uuid.dto';
 import { ArtistsService } from '../artists/artists.service';
 import { FavoritesService } from '../favorites/favorites.service';
 import { AlbumsService } from '../albums/albums.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('track')
 @Controller('track')
 export class TracksController {
   constructor(

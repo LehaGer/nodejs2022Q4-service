@@ -17,7 +17,9 @@ import { AlbumsService } from './albums.service';
 import { ArtistsService } from '../artists/artists.service';
 import { TracksService } from '../tracks/tracks.service';
 import { FavoritesService } from '../favorites/favorites.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('album')
 @Controller('album')
 export class AlbumsController {
   constructor(

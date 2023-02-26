@@ -1,0 +1,8 @@
+/node_modules/
+DB/entrypoint
+pgdata
+README.md
+**/Dockerfile
+docker-compose.yml
+.idea
+dist
