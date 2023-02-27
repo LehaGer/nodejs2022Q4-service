@@ -10,11 +10,13 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './database/stores/typeorm.storage/data-source';
+import { CustomLoggingModule } from './logging/custom-logging.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(dataSourceOptions),
+    CustomLoggingModule,
     UsersModule,
     ArtistsModule,
     TracksModule,
