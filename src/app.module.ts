@@ -12,6 +12,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './database/stores/typeorm.storage/data-source';
 import { CustomLoggingModule } from './logging/custom-logging.module';
 import { CustomLoggingMiddleware } from './logging/custom-logging.middleware';
+import { APP_FILTER } from '@nestjs/core';
+import { CustomExceptionFilter } from './logging/custom-exception.filter';
 
 @Module({
   imports: [
@@ -26,7 +28,13 @@ import { CustomLoggingMiddleware } from './logging/custom-logging.middleware';
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionFilter,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

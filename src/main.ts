@@ -1,6 +1,6 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import {
   DocumentBuilder,
@@ -13,10 +13,17 @@ import { AlbumsModule } from './albums/albums.module';
 import { TracksModule } from './tracks/tracks.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { CustomLoggingService } from './logging/custom-logging.service';
+import { CustomExceptionFilter } from './logging/custom-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalFilters(
+    new CustomExceptionFilter(
+      app.get(HttpAdapterHost),
+      app.get(CustomLoggingService),
+    ),
+  );
   app.useLogger(app.get(CustomLoggingService));
 
   app.useGlobalPipes(new ValidationPipe());
@@ -42,6 +49,8 @@ async function bootstrap() {
   const port = configService.get('PORT');
 
   await app.listen(port || 4000);
+
+  // throw new HttpException('qwe', 402);
 }
 
 bootstrap();

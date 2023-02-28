@@ -8,10 +8,16 @@ export class CustomLoggingMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     this._loggingService.log({
-      url: req.baseUrl,
-      method: req.method,
-      params: Object.values(req.params),
-      body: req.body,
+      request: {
+        url: req.baseUrl,
+        method: req.method,
+        params: Object.values(req.params),
+        query: req.query,
+        body: req.body,
+      },
+      response: {
+        statusCode: res.statusCode,
+      },
     });
     next();
   }
