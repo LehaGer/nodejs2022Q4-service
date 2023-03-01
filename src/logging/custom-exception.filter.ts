@@ -6,9 +6,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { resolve } from 'node:path';
-import { writeFile } from 'node:fs/promises';
 import { CustomLoggingService } from './custom-logging.service';
+import * as process from 'process';
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -16,46 +15,44 @@ export class CustomExceptionFilter implements ExceptionFilter {
     private _httpAdapterHost: HttpAdapterHost,
     private _loggingService: CustomLoggingService,
   ) {
-    process.on('uncaughtException', (error) => {
-      this._loggingService.error(error);
+    process.on('uncaughtException', async () => {
+      await this._loggingService.error(
+        `Service internal error on uncaughtException`,
+      );
       process.exit(1);
     });
-    process.on('unhandledRejection', (reason, promise) => {
-      this._loggingService.error(reason, promise);
+    process.on('unhandledRejection', async () => {
+      await this._loggingService.error(
+        `Service internal error on unhandledRejection`,
+      );
       process.exit(1);
     });
   }
 
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
+    const { httpAdapter } = this._httpAdapterHost;
+
     const ctx = host.switchToHttp();
-    const status =
+
+    const httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-    const msg =
+    const message =
       exception instanceof HttpException
-        ? exception.message
-        : 'Internal Server Error';
-    const { httpAdapter } = this._httpAdapterHost;
+        ? exception.getResponse()['message'] ?? exception.getResponse()
+        : 'Internal server error';
 
-    const responsePayload = {
-      statusCode: status,
+    const responseBody = {
+      statusCode: httpStatus,
+      message: message,
       timestamp: new Date().toISOString(),
-      message: msg,
+      path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
 
-    await this.writeHttpLog(responsePayload);
+    if (exception instanceof HttpException)
+      await this._loggingService.error(JSON.stringify(responseBody));
 
-    httpAdapter.reply(ctx.getResponse(), responsePayload, status);
-  }
-
-  private async writeHttpLog(data: Record<string, any>) {
-    const LOGS_DIR = resolve('logs/', `${Date.now()}-log.json`);
-
-    try {
-      await writeFile(LOGS_DIR, JSON.stringify(data));
-    } catch (err) {
-      return;
-    }
+    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }
