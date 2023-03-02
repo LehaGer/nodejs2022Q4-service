@@ -17,6 +17,8 @@ import { UserSqlEntity } from './entities/user.sql.entity';
 import { AlbumSqlEntity } from './entities/album.sql.entity';
 import { ArtistSqlEntity } from './entities/artist.sql.entity';
 import { TrackSqlEntity } from './entities/track.sql.entity';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 interface IResourceNameEntityCoincidence {
   user: Repository<UserEntity>;
@@ -30,6 +32,7 @@ export class TypeOrmStorage implements IDatabase {
   private ResourceNameEntityCoincidence: IResourceNameEntityCoincidence;
 
   constructor(
+    private configService: ConfigService,
     @InjectRepository(UserSqlEntity)
     private userRepository: Repository<UserSqlEntity>,
     @InjectRepository(TrackSqlEntity)
@@ -87,9 +90,16 @@ export class TypeOrmStorage implements IDatabase {
     params: K[T]['createDto'],
   ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
+      const bcryptSalt = await bcrypt.genSalt(
+        Number(this.configService.get('CRYPT_SALT')),
+      );
       const newUser: K[Extract<T, 'user'>]['entity'] =
         this.userRepository.create({
           ...(params as K[Extract<T, 'user'>]['createDto']),
+          password: await bcrypt.hash(
+            (params as K[Extract<T, 'user'>]['createDto']).password,
+            bcryptSalt,
+          ),
           createdAt: Number(Date.now()),
           updatedAt: Number(Date.now()),
         });
@@ -129,10 +139,16 @@ export class TypeOrmStorage implements IDatabase {
     params: K[T]['updateDto'],
   ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
+      const bcryptSalt = await bcrypt.genSalt(
+        Number(this.configService.get('CRYPT_SALT')),
+      );
       const user = await this.userRepository.findOneBy({ id });
       const newUser = await this.userRepository.save({
         ...user,
-        password: (params as UpdateUserDto).newPassword,
+        password: await bcrypt.hash(
+          (params as UpdateUserDto).newPassword,
+          bcryptSalt,
+        ),
         updatedAt: Date.now(),
       });
       return {

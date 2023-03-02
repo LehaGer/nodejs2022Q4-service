@@ -15,11 +15,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UuidDto } from './dto/uuid.dto';
 import { ApiTags } from '@nestjs/swagger';
+import * as bcrypt from 'bcrypt';
 
 @ApiTags('user')
 @Controller('user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {
+  }
 
   @Post()
   @HttpCode(201)
@@ -51,7 +53,7 @@ export class UsersController {
   async update(@Param() params: UuidDto, @Body() updateUserDto: UpdateUserDto) {
     const user = await this.usersService.findOne(params.id);
     if (!user) throw new NotFoundException();
-    if (user.password !== updateUserDto.oldPassword)
+    if (!(await bcrypt.compare(updateUserDto.oldPassword, user.password)))
       throw new ForbiddenException();
     const userDto = {
       ...(await this.usersService.update(params.id, updateUserDto)),
