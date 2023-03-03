@@ -12,8 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './database/stores/typeorm.storage/data-source';
 import { CustomLoggingModule } from './logging/custom-logging.module';
 import { CustomLoggingMiddleware } from './logging/custom-logging.middleware';
-import { CustomExceptionFilter } from './logging/custom-exception.filter';
-import { APP_FILTER } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,14 +25,15 @@ import { APP_FILTER } from '@nestjs/core';
     AlbumsModule,
     FavoritesModule,
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
+    /*{
       provide: APP_FILTER,
       useClass: CustomExceptionFilter,
-    },
+    },*/
   ],
 })
 export class AppModule implements NestModule {

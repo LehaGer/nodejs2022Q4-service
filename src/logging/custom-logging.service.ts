@@ -65,35 +65,35 @@ export class CustomLoggingService implements LoggerService {
 
   async error(message: any): Promise<any> {
     if (this._LOG_LVL >= 1) {
-      this._logToStdout(message);
+      this._logToStdout(`Error: ${message}`);
       await this._logToFile('errors', message);
     }
   }
 
-  async log(message: any): Promise<any> {
+  async warn(message: any): Promise<any> {
     if (this._LOG_LVL >= 2) {
-      this._logToStdout(message);
+      this._logToStdout(`Warning: ${message}`);
       await this._logToFile('logs', message);
     }
   }
 
-  async warn(message: any): Promise<any> {
+  async log(message: any): Promise<any> {
     if (this._LOG_LVL >= 3) {
-      this._logToStdout(message);
+      this._logToStdout(`Log: ${message}`);
       await this._logToFile('logs', message);
     }
   }
 
   async debug?(message: any): Promise<any> {
     if (this._LOG_LVL >= 4) {
-      this._logToStdout(message);
+      this._logToStdout(`Debug: ${message}`);
       await this._logToFile('logs', message);
     }
   }
 
   async verbose?(message: any): Promise<any> {
     if (this._LOG_LVL == 5) {
-      this._logToStdout(message);
+      this._logToStdout(`Verbose: ${message}`);
       await this._logToFile('logs', message);
     }
   }

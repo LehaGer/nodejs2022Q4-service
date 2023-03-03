@@ -26,4 +26,8 @@ export class UsersService {
   async remove(id: string) {
     return this.storage.delete('user', id);
   }
+
+  async updateRefreshToken(id: string, refreshToken: string) {
+    return this.storage.updateRefreshToken('user', id, refreshToken);
+  }
 }

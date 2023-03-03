@@ -198,6 +198,21 @@ export class TypeOrmStorage implements IDatabase {
     ).remove(resourceEntity);
   }
 
+  async updateRefreshToken<
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(
+    resourceType: T,
+    id: string,
+    refreshToken: string,
+  ): Promise<K[T]['entity']> {
+    const user = await this.userRepository.findOneBy({ id });
+    return await this.userRepository.save({
+      ...user,
+      refreshToken,
+    });
+  }
+
   async getAllFavorites(): Promise<FavoriteEntity> {
     const favouriteTracks = await this.favouriteTrackRepository.find();
     const favouriteAlbums = await this.favouriteAlbumRepository.find();

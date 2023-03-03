@@ -20,8 +20,7 @@ import * as bcrypt from 'bcrypt';
 @ApiTags('user')
 @Controller('user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @HttpCode(201)

@@ -60,6 +60,7 @@ export class InMemoryStorage implements IDatabase {
           (params as K[Extract<T, 'user'>]['createDto']).password,
           bcryptSalt,
         ),
+        refreshToken: null,
       };
       this[`${resourceType as 'user'}s`].push(newUser);
       return newUser;
@@ -117,6 +118,19 @@ export class InMemoryStorage implements IDatabase {
     this[`${resourceType as string}s`] = this[
       `${resourceType as string}s`
     ].filter((resourceInstance) => resourceInstance.id !== id);
+  }
+
+  async updateRefreshToken<
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(
+    resourceType: T,
+    id: string,
+    refreshToken: string,
+  ): Promise<K[T]['entity']> {
+    const user = this.users.find((user) => user.id === id);
+    user.refreshToken = refreshToken;
+    return user;
   }
 
   async getAllFavorites(): Promise<FavoriteEntity> {

@@ -23,6 +23,15 @@ export interface IDatabase {
     resourceType: T,
     id: string,
   ) => Promise<void>;
+
+  updateRefreshToken: <
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(
+    resourceType: T,
+    id: string,
+    refreshToken: string,
+  ) => Promise<K[T]['entity']>;
   getAllFavorites: () => Promise<FavoriteEntity>;
   addTrackToFavorites: (id: string) => Promise<FavoriteEntity>;
   removeTrackFromFavorites: (id: string) => Promise<void>;
