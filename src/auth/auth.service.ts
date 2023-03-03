@@ -106,4 +106,14 @@ export class AuthService {
 
     return tokens;
   }
+
+  async checkTokenOnValidity(token: string) {
+    try {
+      this._jwtService.verify(token, {
+        secret: this._configService.get('JWT_SECRET_REFRESH_KEY'),
+      });
+    } catch (e) {
+      throw new ForbiddenException();
+    }
+  }
 }

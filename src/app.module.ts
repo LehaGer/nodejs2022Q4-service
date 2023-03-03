@@ -13,6 +13,8 @@ import { dataSourceOptions } from './database/stores/typeorm.storage/data-source
 import { CustomLoggingModule } from './logging/custom-logging.module';
 import { CustomLoggingMiddleware } from './logging/custom-logging.middleware';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -33,6 +35,10 @@ import { AuthModule } from './auth/auth.module';
     /*{
       provide: APP_FILTER,
       useClass: CustomExceptionFilter,
+    },*/
+    /*{
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },*/
   ],
 })

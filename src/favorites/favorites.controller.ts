@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   UnprocessableEntityException,
+  UseGuards,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { FavoriteType } from './types/favorite.type';
@@ -17,6 +18,7 @@ import { AlbumsService } from '../albums/albums.service';
 import { FavoriteDto } from './dto/favorite.dto';
 import { FavoriteEntity } from './entities/favorite.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 
 @ApiTags('favorites')
 @Controller('favs')
@@ -29,12 +31,14 @@ export class FavoritesController {
   ) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll() {
     const favoriteEntity = await this.favoritesService.findAll();
     return this.convertEntityToDto(favoriteEntity);
   }
 
   @Post(':target/:id')
+  @UseGuards(AuthGuard)
   async create(
     @Param() incomeParamsDto: IncomeParamsFavoritesDto,
   ): Promise<FavoriteDto> {
@@ -70,6 +74,7 @@ export class FavoritesController {
 
   @Delete(':target/:id')
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   async remove(@Param() incomeParamsDto: IncomeParamsFavoritesDto) {
     switch (incomeParamsDto.target) {
       case FavoriteType.track: {

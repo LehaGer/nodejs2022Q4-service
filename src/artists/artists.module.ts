@@ -5,6 +5,7 @@ import { TracksModule } from '../tracks/tracks.module';
 import { FavoritesModule } from '../favorites/favorites.module';
 import { AlbumsModule } from '../albums/albums.module';
 import { DatabaseModule } from '../database/database.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ArtistsController],
@@ -15,6 +16,7 @@ import { DatabaseModule } from '../database/database.module';
     forwardRef(() => AlbumsModule),
     forwardRef(() => FavoritesModule),
     forwardRef(() => DatabaseModule),
+    forwardRef(() => AuthModule),
   ],
 })
 export class ArtistsModule {}

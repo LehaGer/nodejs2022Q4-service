@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UuidDto } from './dto/uuid.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -17,6 +18,7 @@ import { TracksService } from '../tracks/tracks.service';
 import { AlbumsService } from '../albums/albums.service';
 import { FavoritesService } from '../favorites/favorites.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 
 @ApiTags('artist')
 @Controller('artist')
@@ -30,16 +32,19 @@ export class ArtistsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   async create(@Body() createArtistDto: CreateArtistDto) {
     return this.artistsService.create(createArtistDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll() {
     return this.artistsService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param() params: UuidDto) {
     const artist = await this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();
@@ -47,6 +52,7 @@ export class ArtistsController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   async update(
     @Param() params: UuidDto,
     @Body() updateArtistDto: UpdateArtistDto,
@@ -58,6 +64,7 @@ export class ArtistsController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   async remove(@Param() params: UuidDto) {
     const artist = await this.artistsService.findOne(params.id);
     if (!artist) throw new NotFoundException();

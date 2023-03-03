@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   UnprocessableEntityException,
+  UseGuards,
 } from '@nestjs/common';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { UuidDto } from './dto/uuid.dto';
@@ -18,6 +19,7 @@ import { ArtistsService } from '../artists/artists.service';
 import { TracksService } from '../tracks/tracks.service';
 import { FavoritesService } from '../favorites/favorites.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 
 @ApiTags('album')
 @Controller('album')
@@ -31,6 +33,7 @@ export class AlbumsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   async create(@Body() createAlbumDto: CreateAlbumDto) {
     if (createAlbumDto.artistId !== null) {
       if (!(await this.artistService.findOne(createAlbumDto.artistId)))
@@ -40,11 +43,13 @@ export class AlbumsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll() {
     return this.albumsService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param() params: UuidDto) {
     const album = await this.albumsService.findOne(params.id);
     if (!album) throw new NotFoundException();
@@ -52,6 +57,7 @@ export class AlbumsController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   async update(
     @Param() params: UuidDto,
     @Body() updateAlbumDto: UpdateAlbumDto,
@@ -63,6 +69,7 @@ export class AlbumsController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   async remove(@Param() params: UuidDto) {
     const album = await this.albumsService.findOne(params.id);
     if (!album) throw new NotFoundException();
