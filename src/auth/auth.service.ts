@@ -48,16 +48,16 @@ export class AuthService {
       login: user.login,
     };
     const tokens = {
-      access_token: this._jwtService.sign(payload, {
+      accessToken: this._jwtService.sign(payload, {
         secret: this._configService.get('JWT_SECRET_KEY'),
         expiresIn: this._configService.get('TOKEN_EXPIRE_TIME'),
       }),
-      refresh_token: this._jwtService.sign(payload, {
+      refreshToken: this._jwtService.sign(payload, {
         secret: this._configService.get('JWT_SECRET_REFRESH_KEY'),
         expiresIn: this._configService.get('TOKEN_REFRESH_EXPIRE_TIME'),
       }),
     };
-    await this._userService.updateRefreshToken(user.id, tokens.refresh_token);
+    await this._userService.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
@@ -92,17 +92,17 @@ export class AuthService {
       throw new ForbiddenException();
 
     const tokens = {
-      access_token: this._jwtService.sign(userTokenPayload, {
+      accessToken: this._jwtService.sign(userTokenPayload, {
         secret: this._configService.get('JWT_SECRET_KEY'),
         expiresIn: this._configService.get('TOKEN_EXPIRE_TIME'),
       }),
-      refresh_token: this._jwtService.sign(userTokenPayload, {
+      refreshToken: this._jwtService.sign(userTokenPayload, {
         secret: this._configService.get('JWT_SECRET_REFRESH_KEY'),
         expiresIn: this._configService.get('TOKEN_REFRESH_EXPIRE_TIME'),
       }),
     };
 
-    await this._userService.updateRefreshToken(user.id, tokens.refresh_token);
+    await this._userService.updateRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
   }
