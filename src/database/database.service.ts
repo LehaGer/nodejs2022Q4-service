@@ -46,6 +46,21 @@ export class DatabaseService {
     return this.storage.delete<T>(resourceType, id);
   }
 
+  async updateRefreshToken<
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(
+    resourceType: T,
+    id: string,
+    refreshToken: string,
+  ): Promise<K[T]['entity']> {
+    return this.storage.updateRefreshToken<T, K>(
+      resourceType,
+      id,
+      refreshToken,
+    );
+  }
+
   async getAllFavorites(): Promise<FavoriteEntity> {
     return this.storage.getAllFavorites();
   }

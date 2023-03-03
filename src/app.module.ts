@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,19 +10,41 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './database/stores/typeorm.storage/data-source';
+import { CustomLoggingModule } from './logging/custom-logging.module';
+import { CustomLoggingMiddleware } from './logging/custom-logging.middleware';
+import { AuthModule } from './auth/auth.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
+import { CustomExceptionFilter } from './logging/custom-exception.filter';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(dataSourceOptions),
+    CustomLoggingModule,
     UsersModule,
     ArtistsModule,
     TracksModule,
     AlbumsModule,
     FavoritesModule,
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionFilter,
+    },
+    /*{
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },*/
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CustomLoggingMiddleware).forRoutes('*');
+  }
+}

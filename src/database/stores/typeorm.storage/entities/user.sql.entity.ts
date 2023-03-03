@@ -19,4 +19,7 @@ export class UserSqlEntity {
 
   @Column({ type: 'int8' })
   updatedAt: number; // timestamp of last update
+
+  @Column({ type: 'text', nullable: true })
+  refreshToken: string;
 }

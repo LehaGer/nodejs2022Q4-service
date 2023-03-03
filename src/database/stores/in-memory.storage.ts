@@ -9,6 +9,8 @@ import { FavoriteEntity } from '../../favorites/entities/favorite.entity';
 import { v4 as uuid } from 'uuid';
 import { IResourceTypeCoincidence } from '../interfaces/resourceTypeCoincidence.interface';
 import { UpdateUserDto } from '../../users/dto/update-user.dto';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class InMemoryStorage implements IDatabase {
@@ -22,6 +24,8 @@ export class InMemoryStorage implements IDatabase {
       albums: [],
       artists: [],
     };
+
+  constructor(private configService: ConfigService) {}
 
   async findAll<T extends ResourceTypeName, K extends IResourceTypeCoincidence>(
     resourceType: T,
@@ -42,6 +46,9 @@ export class InMemoryStorage implements IDatabase {
     resourceType: T,
     params: K[T]['createDto'],
   ): Promise<K[T]['entity']> {
+    const bcryptSalt = await bcrypt.genSalt(
+      Number(this.configService.get('CRYPT_SALT')),
+    );
     if (resourceType === 'user') {
       const newUser: K[Extract<T, 'user'>]['entity'] = {
         id: uuid(),
@@ -49,6 +56,11 @@ export class InMemoryStorage implements IDatabase {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         ...(params as K[Extract<T, 'user'>]['createDto']),
+        password: await bcrypt.hash(
+          (params as K[Extract<T, 'user'>]['createDto']).password,
+          bcryptSalt,
+        ),
+        refreshToken: null,
       };
       this[`${resourceType as 'user'}s`].push(newUser);
       return newUser;
@@ -70,12 +82,18 @@ export class InMemoryStorage implements IDatabase {
     params: K[T]['updateDto'],
   ): Promise<K[T]['entity']> {
     if (resourceType === 'user') {
+      const bcryptSalt = await bcrypt.genSalt(
+        Number(this.configService.get('CRYPT_SALT')),
+      );
       const userEntityIndex = this[`${resourceType as string}s`].findIndex(
         (user) => user.id === id,
       );
       this[`${resourceType as string}s`][userEntityIndex] = {
         ...this[`${resourceType as string}s`][userEntityIndex],
-        password: (params as UpdateUserDto).newPassword,
+        password: await bcrypt.hash(
+          (params as UpdateUserDto).newPassword,
+          bcryptSalt,
+        ),
         version: ++this[`${resourceType as string}s`][userEntityIndex].version,
         updatedAt: Date.now(),
       };
@@ -100,6 +118,19 @@ export class InMemoryStorage implements IDatabase {
     this[`${resourceType as string}s`] = this[
       `${resourceType as string}s`
     ].filter((resourceInstance) => resourceInstance.id !== id);
+  }
+
+  async updateRefreshToken<
+    T extends ResourceTypeName,
+    K extends IResourceTypeCoincidence,
+  >(
+    resourceType: T,
+    id: string,
+    refreshToken: string,
+  ): Promise<K[T]['entity']> {
+    const user = this.users.find((user) => user.id === id);
+    user.refreshToken = refreshToken;
+    return user;
   }
 
   async getAllFavorites(): Promise<FavoriteEntity> {
